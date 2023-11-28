@@ -41,6 +41,11 @@ const createUserSchema = Joi.object({
     }),
 });
 
+const updateUserSchema = Joi.object({
+  fullName: Joi.string().optional(),
+});
+
 module.exports = {
   createUserSchema,
+  updateUserSchema,
 };

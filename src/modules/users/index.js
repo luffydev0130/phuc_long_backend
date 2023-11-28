@@ -3,7 +3,7 @@ const ctrl = require('./user.controller');
 const { createUserSchema } = require('./user.validations');
 const { validateRequestMiddleware } = require('../../shared/middleware');
 
-router.route('/:userId').get(ctrl.getUserById);
+router.route('/:userId').get(ctrl.getUserById).patch(ctrl.updateUser).delete(ctrl.deleteUser);
 
 router
   .route('/')

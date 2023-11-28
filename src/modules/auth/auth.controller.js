@@ -11,6 +11,11 @@ module.exports = {
     if (!isMatchPassword) {
       throw httpResponseErrorUtils.createBadRequest('Email hoặc mật khẩu không chính xác');
     }
+    if (user.isBlock) {
+      throw httpResponseErrorUtils.createForbidden(
+        'Tài khoản của bạn đã bị tạm khoá, vui lòng liên hệ admin để được hỗ trợ',
+      );
+    }
     delete user._doc['password'];
     return res.status(200).json({
       status: 'OK',

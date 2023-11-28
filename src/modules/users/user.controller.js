@@ -58,5 +58,55 @@ module.exports = {
         `Không tìm thấy người dùng có Id: ${req.params.userId}`,
       );
     }
+    const changes = {};
+    for (const field of Object.keys(req.body)) {
+      switch (field) {
+        case 'password': {
+          changes.password = await passwordUtils.hashPassword(req.body.password);
+          break;
+        }
+        case 'fullName': {
+          changes.fullName = req.body.fullName;
+          break;
+        }
+        case 'phone': {
+          changes.phone = req.body.phone;
+          break;
+        }
+        case 'address': {
+          changes.address = req.body.address;
+          break;
+        }
+        case 'gender': {
+          changes.gender = req.body.gender;
+          break;
+        }
+        case 'isAdmin': {
+          changes.isAdmin = req.body.isAdmin;
+          break;
+        }
+        case 'isBlock': {
+          changes.isBlock = req.body.isBlock;
+          break;
+        }
+      }
+    }
+    const updatedUser = await UsersService.updateUser(req.params.userId, changes);
+    return res.status(200).json({
+      statusCode: 200,
+      status: 'Updated',
+      responseData: updatedUser,
+    });
+  }),
+
+  deleteUser: catchAsyncFn(async (req, res, next) => {
+    const user = await UsersService.getUserById(req.params.userId);
+    if (!user) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy người dùng có Id: ${req.params.userId}`,
+      );
+    }
+    await UsersService.deleteUser(req.params.userId);
+    return res.status(204).send();
   }),
 };

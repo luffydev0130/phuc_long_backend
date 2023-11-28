@@ -34,7 +34,26 @@ module.exports = {
       .sort([['createdAt', 'desc']]);
   },
 
+  /**
+   * Get user by id
+   * @param {string} userId
+   * @returns {Promise}
+   */
   getUserById: (userId) => {
     return Users.findById(userId).select({ password: 0, __v: 0, updatedAt: 0 });
+  },
+
+  /**
+   * Update user
+   * @param {string} userId
+   * @param {any} changes
+   * @returns {Promise}
+   */
+  updateUser: (userId, changes) => {
+    return Users.updateOne({ _id: userId }, { $set: changes });
+  },
+
+  deleteUser: (userId) => {
+    return Users.deleteOne({ _id: userId });
   },
 };
