@@ -6,10 +6,11 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     fullName: { type: String },
     phone: { type: Number },
+    gender: { type: String },
     address: { type: String },
     avatar: { type: String },
-    gender: { type: String },
-    isAdmin: { type: Boolean, default: false, required: true },
+    isAdmin: { type: Boolean, default: false },
+    isBlock: { type: Boolean, default: false },
   },
   {
     timestamps: true,

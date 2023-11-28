@@ -7,7 +7,7 @@ module.exports = {
    * @returns {Promise}
    */
   getUserByEmail: (email) => {
-    return Users.findOne({ email }).select('-password');
+    return Users.findOne({ email }).select({ __v: 0, updatedAt: 0 });
   },
 
   /**
@@ -22,5 +22,19 @@ module.exports = {
    */
   createUser: (rawUser) => {
     return Users.create(rawUser);
+  },
+
+  /**
+   * Get all users
+   * @returns {Promise}
+   */
+  getAllUsers: () => {
+    return Users.find({})
+      .select({ password: 0, __v: 0, updatedAt: 0 })
+      .sort([['createdAt', 'desc']]);
+  },
+
+  getUserById: (userId) => {
+    return Users.findById(userId).select({ password: 0, __v: 0, updatedAt: 0 });
   },
 };
