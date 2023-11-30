@@ -4,4 +4,5 @@ module.exports = {
   httpResponseErrorUtils: require('./http-response-error.utils'),
   passwordUtils: require('./password.utils'),
   tokenUtils: require('./token.utils'),
+  uploadFilesUtils: require('./upload-files.utils'),
 };

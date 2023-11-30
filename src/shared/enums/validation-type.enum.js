@@ -4,4 +4,6 @@ module.exports = {
   MinLength: 'string.min',
   StringPattern: 'string.pattern.base',
   Only: 'any.only',
+  MaxLength: 'string.max',
+  NumberMin: 'number.min',
 };
