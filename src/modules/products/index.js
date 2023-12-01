@@ -5,10 +5,11 @@ const {
 } = require('../../shared/middleware');
 const { uploadFilesUtils } = require('../../shared/utils');
 const ctrl = require('./products.controller');
-const { createProductSchema } = require('./products.validation');
+const { createProductSchema, getAllProductsSchema } = require('./products.validation');
 
 router
   .route('/')
+  .get(validateRequestMiddleware('query', getAllProductsSchema), ctrl.getAllProducts)
   .post(
     uploadFilesUtils.fields([{ name: 'images', maxCount: 5 }]),
     parseJsonStr2ObjMiddleware(['prices']),

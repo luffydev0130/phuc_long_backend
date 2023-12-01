@@ -5,7 +5,13 @@ module.exports = {
     return Products.create(payload);
   },
 
-  getAllProducts: () => {},
+  getAllProducts: (filterOptions, page, pageSize) => {
+    return Products.find(filterOptions)
+      .populate('productType')
+      .populate('markers')
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+  },
 
   getProductById: (productId) => {
     return Products.findById(productId)
