@@ -20,6 +20,8 @@ module.exports = {
   },
 
   getAllProductTypes: () => {
-    return ProductTypes.find().sort([['createdAt', 'desc']]);
+    return ProductTypes.find()
+      .select({ __v: 0, updatedAt: 0 })
+      .sort([['createdAt', 'desc']]);
   },
 };

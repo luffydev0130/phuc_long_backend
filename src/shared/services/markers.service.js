@@ -20,6 +20,8 @@ module.exports = {
   },
 
   getAllMarkers: () => {
-    return Markers.find().sort([['createdAt', 'desc']]);
+    return Markers.find()
+      .select({ __v: 0, updatedAt: 0 })
+      .sort([['createdAt', 'desc']]);
   },
 };

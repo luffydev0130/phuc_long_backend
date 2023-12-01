@@ -7,6 +7,8 @@ const { uploadFilesUtils } = require('../../shared/utils');
 const ctrl = require('./products.controller');
 const { createProductSchema, getAllProductsSchema } = require('./products.validation');
 
+router.get('/:productId', ctrl.getProductById);
+
 router
   .route('/')
   .get(validateRequestMiddleware('query', getAllProductsSchema), ctrl.getAllProducts)

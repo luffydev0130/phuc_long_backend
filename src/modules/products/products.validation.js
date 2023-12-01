@@ -3,9 +3,9 @@ const Joi = require('joi');
 const getAllProductsSchema = Joi.object({
   name: Joi.string(),
   productType: Joi.string().regex(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId validation
-  markers: Joi.string().regex(/^[0-9a-fA-F]{24}$/), // MongoDB ObjectId validation
+  markers: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)), // MongoDB ObjectId validation
   page: Joi.number().min(1).default(1),
-  limit: Joi.number().min(1).max(100).default(10),
+  pageSize: Joi.number().min(1).max(100).default(10),
 });
 
 const createProductSchema = Joi.object({

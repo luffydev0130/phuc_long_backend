@@ -1,9 +1,18 @@
 const { ProductsService } = require('../../shared/services');
-const { catchAsyncFn } = require('../../shared/utils');
+const { catchAsyncFn, httpResponseErrorUtils } = require('../../shared/utils');
+
+const createDefaultInfoForProduct = (product) => {
+  return {
+    ...product,
+    defaultPrice: product.prices[0],
+    defaultImage: product.images[0],
+  };
+};
 
 module.exports = {
   getAllProducts: catchAsyncFn(async (req, res, next) => {
     const { name, productType, markers, page, pageSize } = req.query;
+
     const filterOptions = {};
     if (name) {
       filterOptions.name = new RegExp(name, 'i');
@@ -12,13 +21,27 @@ module.exports = {
       filterOptions.productType = productType;
     }
     if (markers) {
-      filterOptions.markers = markers;
+      filterOptions.markers = { $in: markers };
     }
-    const products = await ProductsService.getAllProducts(filterOptions, page, pageSize);
+
+    const totalProducts = await ProductsService.getTotalProducts(filterOptions);
+    const totalPages = Math.ceil(totalProducts / pageSize);
+    const currentPage = Math.min(Math.max(1, parseInt(page, 10)), totalPages);
+
+    let products = await ProductsService.getAllProducts(filterOptions, currentPage, pageSize);
+    products = products.map((product) => createDefaultInfoForProduct(product._doc));
     return res.status(200).json({
       statusCode: 200,
       status: 'OK',
-      responseData: products,
+      responseData: {
+        products,
+        pagination: {
+          totalPages,
+          currentPage,
+          total: totalProducts,
+          pageSize: parseInt(pageSize, 12),
+        },
+      },
     });
   }),
 
@@ -30,7 +53,7 @@ module.exports = {
       prices: req.body.prices || [],
       productType: req.body.productType,
       images: req.files.images
-        ? req.files.images.map((file) => `${req.hostname}/uploads/${file.filename}`)
+        ? req.files.images.map((file) => `${process.env.HOST_NAME}/uploads/${file.filename}`)
         : [],
     };
     let product = await ProductsService.createProduct(payload);
@@ -39,6 +62,20 @@ module.exports = {
       statusCode: 201,
       status: 'Created',
       responseData: product,
+    });
+  }),
+
+  getProductById: catchAsyncFn(async (req, res, next) => {
+    const product = await ProductsService.getProductById(req.params.productId);
+    if (!product) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy sản phẩm nào có id: ${req.params.productId}`,
+      );
+    }
+    return res.status(200).json({
+      statusCode: 200,
+      status: 'OK',
+      responseData: createDefaultInfoForProduct(product._doc),
     });
   }),
 };
