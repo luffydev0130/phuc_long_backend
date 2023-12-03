@@ -1,10 +1,14 @@
-const { UsersService, CartsService } = require('../../shared/services');
+const path = require('path');
 const {
+  tokenUtils,
   catchAsyncFn,
   passwordUtils,
+  sendMailUtils,
+  generateOtpUtils,
+  parseTemplateUtils,
   httpResponseErrorUtils,
-  tokenUtils,
 } = require('../../shared/utils');
+const { UsersService, CartsService, UserOtpsService } = require('../../shared/services');
 
 module.exports = {
   handleLogin: catchAsyncFn(async (req, res, next) => {
@@ -84,6 +88,48 @@ module.exports = {
         ...user._doc,
         accessToken,
       },
+    });
+  }),
+
+  handleForgotPassword: catchAsyncFn(async (req, res, next) => {
+    // Check existed
+    const user = await UsersService.getUserByEmail(req.body.email);
+    if (!user) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy người dùng với email: ${req.body.email}`,
+      );
+    }
+    // Prepare data for otp
+    const now = new Date();
+    const otpCode = generateOtpUtils();
+    const userOtpPayload = {
+      otpCode,
+      userId: user._doc._id,
+      validUntil: new Date(now.getTime() + 10 * 60 * 1000),
+    };
+    const subject = 'LaKong - Coffee & Teas - Khôi phục mật khẩu';
+    const tplFilePath = path.resolve(
+      __dirname,
+      '../',
+      '../',
+      'shared',
+      'templates',
+      'forgot-password.tpl.html',
+    );
+    const replacements = [
+      { search: '{otpCode}', replaceValue: otpCode },
+      { search: '{logoUrl}', replaceValue: `${process.env.HOST_NAME}/images/logo.jpeg` },
+    ];
+    const template = await parseTemplateUtils(tplFilePath, replacements);
+    // Insert into userotps and send mail
+    await Promise.all([
+      UserOtpsService.createOtp(userOtpPayload),
+      sendMailUtils(user._doc.email, subject, template),
+    ]);
+    // Return response
+    return res.status(201).json({
+      statusCode: 201,
+      status: 'Created',
     });
   }),
 };

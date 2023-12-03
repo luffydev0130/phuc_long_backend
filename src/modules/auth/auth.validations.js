@@ -52,7 +52,18 @@ const registerSchema = Joi.object({
   address: Joi.string(),
 });
 
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string()
+    .required()
+    .email()
+    .messages({
+      [ValidationTypeEnum.Required]: 'Email không được để trống',
+      [ValidationTypeEnum.Email]: 'Email không hợp lệ',
+    }),
+});
+
 module.exports = {
   loginSchema,
   registerSchema,
+  forgotPasswordSchema,
 };
