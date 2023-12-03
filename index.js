@@ -17,11 +17,13 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }, { extends: false }));
 
 app.use(express.static(path.resolve(__dirname, 'public')));
+
+app.use('/api/auth', require('./src/modules/auth'));
 app.use('/api/users', require('./src/modules/users'));
+app.use('/api/markers', require('./src/modules/markers'));
 app.use('/api/products', require('./src/modules/products'));
 app.use('/api/product-types', require('./src/modules/product-types'));
-app.use('/api/markers', require('./src/modules/markers'));
-app.use('/api/auth', require('./src/modules/auth'));
+
 app.use('*', (req, res) => {
   return res.status(404).json({
     status: 'Not found',

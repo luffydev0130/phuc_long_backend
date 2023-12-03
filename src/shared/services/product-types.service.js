@@ -24,4 +24,34 @@ module.exports = {
       .select({ __v: 0, updatedAt: 0 })
       .sort([['createdAt', 'desc']]);
   },
+
+  /**
+   * Get product type by productTypeId
+   * @param {string} productTypeId
+   * @returns {Promise}
+   */
+  getProductTypeById: (productTypeId) => {
+    return ProductTypes.findById(productTypeId).select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
+   * Update product type
+   * @param {string} productTypeId
+   * @param {any} changes
+   * @returns {Promise}
+   */
+  updateProductType: (productTypeId, changes) => {
+    return ProductTypes.findOneAndUpdate({ _id: productTypeId }, changes, {
+      new: true,
+    }).select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
+   * Update product type
+   * @param {string} productTypeId
+   * @returns {Promise}
+   */
+  deleteProductType: (productTypeId) => {
+    return ProductTypes.deleteOne({ _id: productTypeId });
+  },
 };
