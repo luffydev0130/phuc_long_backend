@@ -10,6 +10,16 @@ const {
 } = require('../../shared/utils');
 const { UsersService, CartsService, UserOtpsService } = require('../../shared/services');
 
+const SUBJECT = 'LaKong - Coffee & Teas - Khôi phục mật khẩu';
+const FILE_PATH = path.resolve(
+  __dirname,
+  '../',
+  '../',
+  'shared',
+  'templates',
+  'forgot-password.tpl.html',
+);
+
 module.exports = {
   handleLogin: catchAsyncFn(async (req, res, next) => {
     // Check existed user
@@ -99,6 +109,7 @@ module.exports = {
         `Không tìm thấy người dùng với email: ${req.body.email}`,
       );
     }
+    const existedOtp = await UserOtpsService.getOtpByUserId(user._doc._id);
     // Prepare data for otp
     const now = new Date();
     const otpCode = generateOtpUtils();
@@ -107,24 +118,56 @@ module.exports = {
       userId: user._doc._id,
       validUntil: new Date(now.getTime() + 10 * 60 * 1000),
     };
-    const subject = 'LaKong - Coffee & Teas - Khôi phục mật khẩu';
-    const tplFilePath = path.resolve(
-      __dirname,
-      '../',
-      '../',
-      'shared',
-      'templates',
-      'forgot-password.tpl.html',
-    );
     const replacements = [
       { search: '{otpCode}', replaceValue: otpCode },
       { search: '{logoUrl}', replaceValue: `${process.env.HOST_NAME}/images/logo.jpeg` },
     ];
-    const template = await parseTemplateUtils(tplFilePath, replacements);
-    // Insert into userotps and send mail
+    const template = await parseTemplateUtils(FILE_PATH, replacements);
+    // Insert into or update userotps and send mail
+    const promises = [sendMailUtils(user._doc.email, SUBJECT, template)];
+    if (existedOtp) {
+      existedOtp.otpCode = userOtpPayload.otpCode;
+      existedOtp.validUntil = userOtpPayload.validUntil;
+      promises.push(existedOtp.save());
+    } else {
+      promises.push(UserOtpsService.createOtp(userOtpPayload));
+    }
+    await Promise.all(promises);
+    // Return response
+    return res.status(201).json({
+      statusCode: 201,
+      status: 'Created',
+    });
+  }),
+
+  handleResendOtp: catchAsyncFn(async (req, res, next) => {
+    // Check existed
+    const user = await UsersService.getUserByEmail(req.body.email);
+    if (!user) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy người dùng với email: ${req.body.email}`,
+      );
+    }
+    const existedOtp = await UserOtpsService.getOtpByUserId(user._doc._id);
+    if (!existedOtp) {
+      throw httpResponseErrorUtils.createNotFound('Không tìm thấy lịch sử sử dụng OTP');
+    }
+    // Prepare data for otp
+    const now = new Date();
+    const otpCode = generateOtpUtils();
+    const changes = {
+      otpCode,
+      validUntil: new Date(now.getTime() + 10 * 60 * 1000),
+    };
+    const replacements = [
+      { search: '{otpCode}', replaceValue: otpCode },
+      { search: '{logoUrl}', replaceValue: `${process.env.HOST_NAME}/images/logo.jpeg` },
+    ];
+    const template = await parseTemplateUtils(FILE_PATH, replacements);
+    // Update and resend mail
     await Promise.all([
-      UserOtpsService.createOtp(userOtpPayload),
-      sendMailUtils(user._doc.email, subject, template),
+      UserOtpsService.updateOtpByUserId(user._doc._id, changes),
+      sendMailUtils(user._doc.email, SUBJECT, template),
     ]);
     // Return response
     return res.status(201).json({
@@ -132,4 +175,6 @@ module.exports = {
       status: 'Created',
     });
   }),
+
+  handleVerifyToken: catchAsyncFn(async (req, res, next) => {}),
 };

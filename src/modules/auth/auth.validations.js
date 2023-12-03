@@ -52,7 +52,7 @@ const registerSchema = Joi.object({
   address: Joi.string(),
 });
 
-const forgotPasswordSchema = Joi.object({
+const emailSchema = Joi.object({
   email: Joi.string()
     .required()
     .email()
@@ -63,7 +63,7 @@ const forgotPasswordSchema = Joi.object({
 });
 
 module.exports = {
+  emailSchema,
   loginSchema,
   registerSchema,
-  forgotPasswordSchema,
 };
