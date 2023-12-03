@@ -1,5 +1,8 @@
 node_modules
-uploads
 .vscode
 .DS_Store
 .env
+*.png
+*.jpg
+*.jpeg
+*.gif
