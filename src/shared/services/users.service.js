@@ -11,6 +11,15 @@ module.exports = {
   },
 
   /**
+   * Get an user by phone
+   * @param {string} phone
+   * @returns {Promise}
+   */
+  getUserByPhone: (phone) => {
+    return Users.findOne({ phone }).select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
    * Create a new user
    * @param {object} rawUser
    * @param {string} rawUser.email
@@ -50,7 +59,11 @@ module.exports = {
    * @returns {Promise}
    */
   updateUser: (userId, changes) => {
-    return Users.updateOne({ _id: userId }, { $set: changes });
+    return Users.findByIdAndUpdate(userId, changes, { new: true }).select({
+      password: 0,
+      __v: 0,
+      updatedAt: 0,
+    });
   },
 
   deleteUser: (userId) => {

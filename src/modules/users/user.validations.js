@@ -45,7 +45,18 @@ const updateUserSchema = Joi.object({
   fullName: Joi.string().optional(),
 });
 
+const userIdSchema = Joi.object({
+  userId: Joi.string()
+    .required()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .messages({
+      [ValidationTypeEnum.Required]: 'userId không được để trống',
+      [ValidationTypeEnum.StringPattern]: 'userId không hợp lệ',
+    }),
+});
+
 module.exports = {
+  userIdSchema,
   createUserSchema,
   updateUserSchema,
 };

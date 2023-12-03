@@ -49,6 +49,7 @@ const registerSchema = Joi.object({
     .messages({
       [ValidationTypeEnum.Only]: 'Giới tính không hợp lệ, giá trị hợp lệ: Nam, Nữ, Khác',
     }),
+  address: Joi.string(),
 });
 
 module.exports = {

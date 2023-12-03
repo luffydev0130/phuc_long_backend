@@ -1,9 +1,15 @@
 const router = require('express').Router();
 const ctrl = require('./user.controller');
-const { createUserSchema } = require('./user.validations');
+const { uploadFilesUtils } = require('../../shared/utils');
+const { createUserSchema, userIdSchema } = require('./user.validations');
 const { validateRequestMiddleware } = require('../../shared/middleware');
 
-router.route('/:userId').get(ctrl.getUserById).patch(ctrl.updateUser).delete(ctrl.deleteUser);
+router
+  .route('/:userId')
+  .all(validateRequestMiddleware('params', userIdSchema))
+  .get(ctrl.getUserById)
+  .patch(uploadFilesUtils.single('avatar'), ctrl.updateUser)
+  .delete(ctrl.deleteUser);
 
 router
   .route('/')

@@ -59,7 +59,11 @@ module.exports = {
       );
     }
     const changes = {};
-    for (const field of Object.keys(req.body)) {
+    const payload = {
+      ...req.body,
+      avatar: req.file,
+    };
+    for (const field of payload) {
       switch (field) {
         case 'password': {
           changes.password = await passwordUtils.hashPassword(req.body.password);
@@ -88,6 +92,15 @@ module.exports = {
         case 'isBlock': {
           changes.isBlock = req.body.isBlock;
           break;
+        }
+        case 'avatar': {
+          changes.avatar = `${process.env.HOST_NAME}/uploads/${payload.avatar.filename}`;
+          break;
+        }
+        default: {
+          throw httpResponseErrorUtils.createBadRequest(
+            `Không hỗ trợ cập nhật cho thông tin: ${field}`,
+          );
         }
       }
     }
