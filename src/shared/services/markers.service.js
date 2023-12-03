@@ -41,9 +41,10 @@ module.exports = {
    * @returns {Promise}
    */
   updateMarker: (markerId, changes) => {
-    return Markers.findOneAndUpdate({ _id: markerId }, changes, { new: true, upsert: true }).select(
-      { __v: 0, updatedAt: 0 },
-    );
+    return Markers.findOneAndUpdate({ _id: markerId }, changes, { new: true }).select({
+      __v: 0,
+      updatedAt: 0,
+    });
   },
 
   /**

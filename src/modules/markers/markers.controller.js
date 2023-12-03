@@ -1,4 +1,4 @@
-const { MarkersService } = require('../../shared/services');
+const { MarkersService, ProductsService } = require('../../shared/services');
 const { catchAsyncFn, httpResponseErrorUtils } = require('../../shared/utils');
 
 module.exports = {
@@ -41,7 +41,7 @@ module.exports = {
   }),
 
   updateMarker: catchAsyncFn(async (req, res, next) => {
-    const [existedType, currentMarker] = await Promise.all([
+    const [existedMarker, currentMarker] = await Promise.all([
       MarkersService.getMarkerByName(req.body.markerName),
       MarkersService.getMarkerById(req.params.markerId),
     ]);
@@ -50,7 +50,7 @@ module.exports = {
         `Không tìm thấy marker với id: ${req.params.markerId}`,
       );
     }
-    if (existedType) {
+    if (existedMarker) {
       throw httpResponseErrorUtils.createBadRequest('Marker đã tồn tại');
     }
     const updatedMarker = await MarkersService.updateMarker(req.params.markerId, {
@@ -64,10 +64,18 @@ module.exports = {
   }),
 
   deleteMarker: catchAsyncFn(async (req, res, next) => {
-    const marker = await MarkersService.getMarkerById(req.params.markerId);
+    const [marker, product] = await Promise.all([
+      MarkersService.getMarkerById(req.params.markerId),
+      ProductsService.getProductByMarker(req.params.markerId),
+    ]);
     if (!marker) {
       throw httpResponseErrorUtils.createNotFound(
         `Không tìm thấy marker với id: ${req.params.markerId}`,
+      );
+    }
+    if (product) {
+      throw httpResponseErrorUtils.createBadRequest(
+        'Không thể xoá marker này vì đang có sản phẩm tồn tại',
       );
     }
     await MarkersService.deleteMarker(req.params.markerId);
