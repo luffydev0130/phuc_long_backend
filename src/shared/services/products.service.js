@@ -71,4 +71,26 @@ module.exports = {
   getProductByMarker: (markerId) => {
     return Products.findOne({ markers: { $in: [markerId] } });
   },
+
+  /**
+   * Update product
+   * @param {string} productId
+   * @param {any} changes
+   * @returns {Promise}
+   */
+  updateProduct: (productId, changes) => {
+    return Products.findByIdAndUpdate(productId, changes, { new: true })
+      .populate({ path: 'productType', select: 'name' })
+      .populate({ path: 'markers', select: 'name' })
+      .select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
+   * Delete product by productId
+   * @param {string} productId
+   * @returns {Promise}
+   */
+  deleteProduct: (productId) => {
+    return Products.deleteOne({ _id: productId });
+  },
 };

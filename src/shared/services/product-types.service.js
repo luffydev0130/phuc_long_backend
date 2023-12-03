@@ -41,7 +41,7 @@ module.exports = {
    * @returns {Promise}
    */
   updateProductType: (productTypeId, changes) => {
-    return ProductTypes.findOneAndUpdate({ _id: productTypeId }, changes, {
+    return ProductTypes.findByIdAndUpdate(productTypeId, changes, {
       new: true,
     }).select({ __v: 0, updatedAt: 0 });
   },
