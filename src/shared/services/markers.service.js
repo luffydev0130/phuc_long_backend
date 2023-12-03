@@ -24,4 +24,34 @@ module.exports = {
       .select({ __v: 0, updatedAt: 0 })
       .sort([['createdAt', 'desc']]);
   },
+
+  /**
+   * Get marker by markerId
+   * @param {string} markerId
+   * @returns {Promise}
+   */
+  getMarkerById: (markerId) => {
+    return Markers.findById(markerId).select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
+   * Update marker
+   * @param {string} markerId
+   * @param {any} changes
+   * @returns {Promise}
+   */
+  updateMarker: (markerId, changes) => {
+    return Markers.findOneAndUpdate({ _id: markerId }, changes, { new: true, upsert: true }).select(
+      { __v: 0, updatedAt: 0 },
+    );
+  },
+
+  /**
+   * Update marker
+   * @param {string} markerId
+   * @returns {Promise}
+   */
+  deleteMarker: (markerId) => {
+    return Markers.deleteOne({ _id: markerId });
+  },
 };

@@ -8,6 +8,8 @@ module.exports = {
       throw httpResponseErrorUtils.createBadRequest('Marker đã tồn tại');
     }
     const marker = await MarkersService.createMarker(req.body.markerName);
+    delete marker._doc['__v'];
+    delete marker._doc['updatedAt'];
     return res.status(200).json({
       statusCode: 201,
       status: 'Created',
@@ -22,5 +24,53 @@ module.exports = {
       status: 'OK',
       responseData: markers,
     });
+  }),
+
+  getMarkerById: catchAsyncFn(async (req, res, next) => {
+    const marker = await MarkersService.getMarkerById(req.params.markerId);
+    if (!marker) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy marker với id: ${req.params.markerId}`,
+      );
+    }
+    return res.status(200).json({
+      statusCode: 200,
+      status: 'OK',
+      responseData: marker,
+    });
+  }),
+
+  updateMarker: catchAsyncFn(async (req, res, next) => {
+    const [existedType, currentMarker] = await Promise.all([
+      MarkersService.getMarkerByName(req.body.markerName),
+      MarkersService.getMarkerById(req.params.markerId),
+    ]);
+    if (!currentMarker) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy marker với id: ${req.params.markerId}`,
+      );
+    }
+    if (existedType) {
+      throw httpResponseErrorUtils.createBadRequest('Marker đã tồn tại');
+    }
+    const updatedMarker = await MarkersService.updateMarker(req.params.markerId, {
+      name: req.body.markerName,
+    });
+    return res.status(200).json({
+      statusCode: 200,
+      status: 'Updated',
+      responseData: updatedMarker,
+    });
+  }),
+
+  deleteMarker: catchAsyncFn(async (req, res, next) => {
+    const marker = await MarkersService.getMarkerById(req.params.markerId);
+    if (!marker) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy marker với id: ${req.params.markerId}`,
+      );
+    }
+    await MarkersService.deleteMarker(req.params.markerId);
+    return res.status(204).send();
   }),
 };
