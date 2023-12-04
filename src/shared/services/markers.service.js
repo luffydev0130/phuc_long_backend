@@ -16,7 +16,7 @@ module.exports = {
    * @returns {Promise}
    */
   getMarkerByName: (markerName) => {
-    return Markers.findOne({ name: new RegExp(markerName, 'ig') });
+    return Markers.findOne({ name: { $regex: new RegExp('^' + markerName + '$', 'i') } });
   },
 
   getAllMarkers: () => {
