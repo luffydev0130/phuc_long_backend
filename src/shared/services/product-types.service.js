@@ -16,7 +16,7 @@ module.exports = {
    * @returns {Promise}
    */
   getProductTypeByName: (productTypeName) => {
-    return ProductTypes.findOne({ name: new RegExp(productTypeName, 'ig') });
+    return ProductTypes.findOne({ name: { $regex: new RegExp('^' + productTypeName + '$', 'i') } });
   },
 
   getAllProductTypes: () => {
