@@ -7,17 +7,28 @@ const {
   generateOtpUtils,
   parseTemplateUtils,
   httpResponseErrorUtils,
+  generateRandomPasswordUtils,
 } = require('../../shared/utils');
 const { UsersService, CartsService, UserOtpsService } = require('../../shared/services');
 
-const SUBJECT = 'LaKong - Coffee & Teas - Khôi phục mật khẩu';
-const FILE_PATH = path.resolve(
+const FORGOT_PASSWORD_SUBJECT = 'LaKong - Coffee & Teas - Khôi phục mật khẩu';
+const FORGOT_PASSWORD_FILE_PATH = path.resolve(
   __dirname,
   '../',
   '../',
   'shared',
   'templates',
   'forgot-password.tpl.html',
+);
+
+const NEW_PASSWORD_SUBJECT = 'LaKong - Coffee & Teas - Mật khẩu mới tài khoản';
+const NEW_PASSWORD_FILE_PATH = path.resolve(
+  __dirname,
+  '../',
+  '../',
+  'shared',
+  'templates',
+  'new-password.tpl.html',
 );
 
 module.exports = {
@@ -122,9 +133,9 @@ module.exports = {
       { search: '{otpCode}', replaceValue: otpCode },
       { search: '{logoUrl}', replaceValue: `${process.env.HOST_NAME}/images/logo.jpeg` },
     ];
-    const template = await parseTemplateUtils(FILE_PATH, replacements);
+    const template = await parseTemplateUtils(FORGOT_PASSWORD_FILE_PATH, replacements);
     // Insert into or update userotps and send mail
-    const promises = [sendMailUtils(user._doc.email, SUBJECT, template)];
+    const promises = [sendMailUtils(user._doc.email, FORGOT_PASSWORD_SUBJECT, template)];
     if (existedOtp) {
       existedOtp.otpCode = userOtpPayload.otpCode;
       existedOtp.validUntil = userOtpPayload.validUntil;
@@ -163,11 +174,11 @@ module.exports = {
       { search: '{otpCode}', replaceValue: otpCode },
       { search: '{logoUrl}', replaceValue: `${process.env.HOST_NAME}/images/logo.jpeg` },
     ];
-    const template = await parseTemplateUtils(FILE_PATH, replacements);
+    const template = await parseTemplateUtils(FORGOT_PASSWORD_FILE_PATH, replacements);
     // Update and resend mail
     await Promise.all([
       UserOtpsService.updateOtpByUserId(user._doc._id, changes),
-      sendMailUtils(user._doc.email, SUBJECT, template),
+      sendMailUtils(user._doc.email, FORGOT_PASSWORD_SUBJECT, template),
     ]);
     // Return response
     return res.status(201).json({
@@ -176,5 +187,46 @@ module.exports = {
     });
   }),
 
-  handleVerifyToken: catchAsyncFn(async (req, res, next) => {}),
+  handleVerifyOtp: catchAsyncFn(async (req, res, next) => {
+    // Check existed
+    const user = await UsersService.getUserByEmail(req.body.email);
+    if (!user) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy người dùng với email: ${req.body.email}`,
+      );
+    }
+    const existedOtp = await UserOtpsService.getOtpByUserId(user._doc._id);
+    if (!existedOtp) {
+      throw httpResponseErrorUtils.createNotFound('Không tìm thấy lịch sử sử dụng OTP');
+    }
+    // Check OTP
+    const isMatchOtp = req.body.otpCode === existedOtp._doc.otpCode;
+    const isValidTime = new Date(existedOtp._doc.validUntil).getTime() >= new Date().getTime();
+    if (!isMatchOtp || !isValidTime) {
+      throw httpResponseErrorUtils.createBadRequest('Mã OTP không chính xác hoặc đã hết hiệu lực');
+    }
+    // Reset password and prepare data
+    const newPassword = generateRandomPasswordUtils();
+    const hashNewPassword = await passwordUtils.hashPassword(newPassword);
+    const changes = {
+      password: hashNewPassword,
+      isForceUpdatePassword: true,
+    };
+    const replacements = [
+      { search: '{fullName}', replaceValue: user._doc.fullName },
+      { search: '{newPassword}', replaceValue: newPassword },
+    ];
+    const template = await parseTemplateUtils(NEW_PASSWORD_FILE_PATH, replacements);
+    // Update and send mail
+    await Promise.all([
+      UserOtpsService.deleteOtpByUserId(user._doc._id),
+      UsersService.updateUser(user._doc._id, changes),
+      sendMailUtils(user._doc.email, NEW_PASSWORD_SUBJECT, template),
+    ]);
+    // Return response
+    return res.status(200).json({
+      statusCode: 200,
+      status: 'Reset password successfully',
+    });
+  }),
 };

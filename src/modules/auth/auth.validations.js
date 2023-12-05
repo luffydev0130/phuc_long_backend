@@ -62,8 +62,21 @@ const emailSchema = Joi.object({
     }),
 });
 
+const verifyOtpSchema = Joi.object({
+  email: Joi.string()
+    .required()
+    .email()
+    .messages({
+      [ValidationTypeEnum.Required]: 'Email không được để trống',
+    }),
+  otpCode: Joi.string()
+    .required()
+    .messages({ [ValidationTypeEnum.Required]: 'Email không được để trống' }),
+});
+
 module.exports = {
   emailSchema,
   loginSchema,
   registerSchema,
+  verifyOtpSchema,
 };

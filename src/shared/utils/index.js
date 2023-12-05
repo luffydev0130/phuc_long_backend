@@ -7,4 +7,5 @@ module.exports = {
   generateOtpUtils: require('./generate-otp.utils'),
   parseTemplateUtils: require('./parse-template.utils'),
   httpResponseErrorUtils: require('./http-response-error.utils'),
+  generateRandomPasswordUtils: require('./generate-random-password.utils'),
 };
