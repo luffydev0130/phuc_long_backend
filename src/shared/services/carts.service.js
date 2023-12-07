@@ -15,15 +15,35 @@ module.exports = {
    * @param {string} cartId
    * @returns {Promise}
    */
-  getCartByUserId: (userId) => {
-    return Carts.findOne({ userId }).select({ __v: 0, updatedAt: 0 }).populate({
-      path: 'products.productId',
-      model: 'Products',
-    });
+  getCartByUserId: async (userId) => {
+    const cart = await Carts.findOne({ userId })
+      .select({ __v: 0, updatedAt: 0 })
+      .populate({
+        path: 'products.productId',
+        model: 'Products',
+      })
+      .select({ __v: 0, updatedAt: 0 });
+    if (cart) {
+      cart._doc.products = cart.products.map((item) => {
+        const { productId: productDetail, size, amount, image, _id } = item;
+        const priceDetail = productDetail._doc.prices.find((item) => item.size === size);
+        return {
+          _id,
+          size,
+          image,
+          amount,
+          productId: productDetail._doc._id,
+          productName: productDetail._doc.name,
+          price: priceDetail.price,
+          totalPrice: priceDetail.price * amount,
+        };
+      });
+    }
+    return cart;
   },
 
-  updateCart: (userId, changes) => {
-    return Carts.findOneAndUpdate({ _id: userId }, changes, { new: true, upsert: true })
+  updateCart: async (userId, changes) => {
+    const updatedCart = await Carts.findOneAndUpdate({ userId }, changes, { new: true })
       .select({
         __v: 0,
         updatedAt: 0,
@@ -32,5 +52,23 @@ module.exports = {
         path: 'products.productId',
         model: 'Products',
       });
+    if (updatedCart) {
+      updatedCart._doc.products = updatedCart.products.map((item) => {
+        const { productId: productDetail, size, amount, image, _id, comment } = item;
+        const priceDetail = productDetail._doc.prices.find((item) => item.size === size);
+        return {
+          _id,
+          size,
+          image,
+          amount,
+          comment,
+          productId: productDetail._doc._id,
+          productName: productDetail._doc.name,
+          price: priceDetail.price,
+          totalPrice: priceDetail.price * amount,
+        };
+      });
+    }
+    return updatedCart;
   },
 };

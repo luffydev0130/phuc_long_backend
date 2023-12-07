@@ -52,12 +52,21 @@ module.exports = {
   }),
 
   updateUser: catchAsyncFn(async (req, res, next) => {
-    const user = await UsersService.getUserById(req.params.userId);
-    if (!user) {
+    const currentUser = await UsersService.getUserById(req.params.userId);
+    if (!currentUser) {
       throw httpResponseErrorUtils.createNotFound(
         `Không tìm thấy người dùng có Id: ${req.params.userId}`,
       );
     }
+    if (req.body.phone) {
+      const existedUserPhone = await UsersService.getUserByPhone(req.body.phone);
+      if (existedUserPhone && existedUserPhone._doc._id !== currentUser._doc._id) {
+        throw httpResponseErrorUtils.createBadRequest(
+          `Số điện thoại này đang được người khác sử dụng. Vui lòng chọn số điện thoại khác`,
+        );
+      }
+    }
+
     const changes = {};
     if (req.file) {
       req.body.avatar = req.file;
@@ -103,6 +112,7 @@ module.exports = {
         }
       }
     }
+
     const updatedUser = await UsersService.updateUser(req.params.userId, changes);
     return res.status(200).json({
       statusCode: 200,
