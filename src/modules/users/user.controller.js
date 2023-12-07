@@ -59,11 +59,10 @@ module.exports = {
       );
     }
     const changes = {};
-    const payload = {
-      ...req.body,
-      avatar: req.file,
-    };
-    for (const field of payload) {
+    if (req.file) {
+      req.body.avatar = req.file;
+    }
+    for (const field in req.body) {
       switch (field) {
         case 'password': {
           changes.password = await passwordUtils.hashPassword(req.body.password);
@@ -94,7 +93,7 @@ module.exports = {
           break;
         }
         case 'avatar': {
-          changes.avatar = `${process.env.HOST_NAME}/uploads/${payload.avatar.filename}`;
+          changes.avatar = `${process.env.HOST_NAME}/uploads/${req.body.avatar.filename}`;
           break;
         }
         default: {

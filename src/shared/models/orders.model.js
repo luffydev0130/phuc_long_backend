@@ -16,7 +16,8 @@ const paymentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      enum: ['chưa thanh toán', 'đã thanh toán'],
+      enum: ['chưa thanh toán', 'đã thanh toán', 'huỷ đơn hàng', 'đang xử lý'],
+      default: 'đang xử lý',
     },
     details: [
       {
@@ -24,8 +25,8 @@ const paymentSchema = new mongoose.Schema(
         productName: { type: String, required: true },
         size: { type: String, required: true, enum: ['s', 'm', 'l', 'S', 'M', 'L'] },
         amount: { type: Number, required: true },
-        price: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
+        price: { type: Number, required: true },
       },
     ],
     totalBill: { type: Number, required: true },

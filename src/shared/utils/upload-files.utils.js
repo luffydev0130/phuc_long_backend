@@ -1,12 +1,15 @@
 const path = require('path');
 const multer = require('multer');
+const renameFileUtils = require('./renameFile.utils');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.resolve(__dirname, '../', '../', '../', 'public', 'uploads')); // Specify the directory to store uploaded files
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname); // Use the original filename
+    const randomName = renameFileUtils();
+    const fileExtension = path.extname(file.originalname);
+    cb(null, `${randomName}${fileExtension}`);
   },
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];

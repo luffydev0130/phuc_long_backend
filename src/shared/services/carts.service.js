@@ -16,21 +16,21 @@ module.exports = {
    * @returns {Promise}
    */
   getCartByUserId: (userId) => {
-    return Carts.findOne({ userId })
-      .populate({
-        path: 'Products',
-      })
-      .select({ __v: 0, updatedAt: 0 });
+    return Carts.findOne({ userId }).select({ __v: 0, updatedAt: 0 }).populate({
+      path: 'products.productId',
+      model: 'Products',
+    });
   },
 
   updateCart: (userId, changes) => {
-    return Carts.findByIdAndUpdate({ _id: userId }, changes, { new: true })
+    return Carts.findOneAndUpdate({ _id: userId }, changes, { new: true, upsert: true })
       .select({
         __v: 0,
         updatedAt: 0,
       })
       .populate({
-        path: 'Products',
+        path: 'products.productId',
+        model: 'Products',
       });
   },
 };

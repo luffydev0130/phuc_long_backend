@@ -4,7 +4,7 @@ const { catchAsyncFn, httpResponseErrorUtils } = require('../../shared/utils');
 module.exports = {
   getCartByUserId: catchAsyncFn(async (req, res, next) => {
     // Check existed cart
-    const cart = await CartsService.getCartById(req.params.userId);
+    const cart = await CartsService.getCartByUserId(req.params.userId);
     if (!cart) {
       throw httpResponseErrorUtils.createNotFound(
         `Không tìm thấy giỏ hàng với userId: ${req.params.userId}`,
