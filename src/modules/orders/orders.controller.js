@@ -44,10 +44,9 @@ module.exports = {
 
   handleGetOrders: catchAsyncFn(async (req, res, next) => {
     const queries = {};
-    const { page = 1, pageSize = 10 } = req.query;
     for (const field in req.query) {
       switch (field) {
-        case 'userId':
+        case 'search':
           queries[field] = req.query[field];
           break;
         case 'fullName':
@@ -78,23 +77,28 @@ module.exports = {
       }
     }
 
-    const [totalOrders, orders] = await Promise.all([
-      OrdersService.getTotalOrders(queries),
-      OrdersService.getOrders(queries, page, pageSize),
-    ]);
+    const orders = await OrdersService.getOrders(queries);
 
     return res.status(200).json({
       status: 'OK',
       statusCode: 200,
-      responseData: {
-        orders,
-        pagination: {
-          totalOrders,
-          currentPage: page,
-          totalPage: Math.ceil(totalOrders / pageSize),
-          pageSize: parseInt(pageSize),
-        },
-      },
+      responseData: orders,
+    });
+  }),
+
+  handleGetOrderByUserId: catchAsyncFn(async (req, res, next) => {
+    const user = await UsersService.getUserById(req.params.userId);
+    if (!user) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy người dùng có ID: ${req.params.userId}`,
+      );
+    }
+
+    const orders = await OrdersService.getOrdersByUserId(req.params.userId);
+    return res.status(200).json({
+      status: 'OK',
+      statusCode: 200,
+      responseData: orders,
     });
   }),
 };

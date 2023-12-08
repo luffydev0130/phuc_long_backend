@@ -11,4 +11,14 @@ const totalBillSchema = Joi.object({
     }),
 });
 
-module.exports = { totalBillSchema };
+const userIdSchema = Joi.object({
+  userId: Joi.string()
+    .required()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .messages({
+      [ValidationTypeEnum.Required]: 'userId không được để trống',
+      [ValidationTypeEnum.StringPattern]: 'userId không hợp lệ',
+    }),
+});
+
+module.exports = { totalBillSchema, userIdSchema };

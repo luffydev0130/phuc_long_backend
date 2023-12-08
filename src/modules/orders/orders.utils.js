@@ -69,7 +69,7 @@ const createPlaceOrderSuccessfullyTemplate = (order) => {
   <body>
     <div id="orderDetails" class="container">
       <div class="header">
-        <img class="logo" src="INSERT_LOGO_URL_HERE" alt="LaKing Logo">
+        <img class="logo" src="${process.env.HOST_NAME}/images/logo.jpeg" alt="LaKong Logo">
         <h2>LaKing - Cà Phê & Trà</h2>
         <p>Xác Nhận Đơn Hàng</p>
       </div>
@@ -128,9 +128,9 @@ const createPlaceOrderSuccessfullyTemplate = (order) => {
           </tr>
         </thead>
         <tbody>
-          ${order.products
-            .map(
-              (product) => `
+        ${order.products
+          .map(
+            (product) => `
             <tr>
               <td><img class="product-image" src="${product.image}" alt="${product.productName}"></td>
               <td>${product.productName}</td>
@@ -139,8 +139,8 @@ const createPlaceOrderSuccessfullyTemplate = (order) => {
               <td>${product.price}</td>
               <td>${product.totalPrice}</td>
             </tr>`,
-            )
-            .join('')}
+          )
+          .join('')}
         </tbody>
       </table>
 

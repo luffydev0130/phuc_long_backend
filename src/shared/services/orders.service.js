@@ -5,15 +5,19 @@ module.exports = {
     return Orders.create(payload);
   },
 
-  getOrders: (queries, page, pageSize) => {
+  getOrders: (queries) => {
     return Orders.find(queries)
-      .skip((page ? page - 1 : 0) * pageSize)
-      .limit(pageSize)
       .select({ __v: 0, updatedAt: 0 })
       .sort([['createdAt', 'desc']]);
   },
 
   getTotalOrders: (queries) => {
     return Orders.countDocuments(queries);
+  },
+
+  getOrdersByUserId: (userId) => {
+    return Orders.find({ userId })
+      .select({ __v: 0, updatedAt: 0 })
+      .sort([['createdAt', 'desc']]);
   },
 };
