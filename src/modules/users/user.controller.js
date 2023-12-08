@@ -60,7 +60,10 @@ module.exports = {
     }
     if (req.body.phone) {
       const existedUserPhone = await UsersService.getUserByPhone(req.body.phone);
-      if (existedUserPhone && existedUserPhone._doc._id !== currentUser._doc._id) {
+      if (
+        existedUserPhone &&
+        existedUserPhone._doc._id.toString() !== currentUser._doc._id.toString()
+      ) {
         throw httpResponseErrorUtils.createBadRequest(
           `Số điện thoại này đang được người khác sử dụng. Vui lòng chọn số điện thoại khác`,
         );
