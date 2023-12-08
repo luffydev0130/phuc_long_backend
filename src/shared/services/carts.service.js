@@ -22,7 +22,8 @@ module.exports = {
         path: 'products.productId',
         model: 'Products',
       })
-      .select({ __v: 0, updatedAt: 0 });
+      .select({ __v: 0, updatedAt: 0 })
+      .sort([['createdAt', 'desc']]);
     if (cart) {
       cart._doc.products = cart.products.map((item) => {
         const { productId: productDetail, size, amount, image, _id } = item;
@@ -51,7 +52,8 @@ module.exports = {
       .populate({
         path: 'products.productId',
         model: 'Products',
-      });
+      })
+      .sort([['createdAt', 'desc']]);
     if (updatedCart) {
       updatedCart._doc.products = updatedCart.products.map((item) => {
         const { productId: productDetail, size, amount, image, _id, comment } = item;

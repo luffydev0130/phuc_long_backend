@@ -1,25 +1,31 @@
 const mongoose = require('mongoose');
 
-const paymentSchema = new mongoose.Schema(
+const orderSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
-    paymentType: {
+    paymentMethod: {
       type: String,
       required: true,
-      enum: ['chuyển khoản', 'thanh toán khi nhận hàng', 'thanh toán tại cửa hàng'],
+    },
+    paymentStatus: {
+      type: String,
+      required: true,
     },
     deliveryType: {
       type: String,
       required: true,
-      enum: ['nhận tại cửa hàng', 'giao hàng'],
     },
-    status: {
+    deliveryStatus: {
+      type: String,
+      required: true,
+    },
+    orderStatus: {
       type: String,
       required: true,
       enum: ['chưa thanh toán', 'đã thanh toán', 'huỷ đơn hàng', 'đang xử lý'],
       default: 'đang xử lý',
     },
-    details: [
+    products: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, required: true },
         productName: { type: String, required: true },
@@ -27,14 +33,19 @@ const paymentSchema = new mongoose.Schema(
         amount: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
         price: { type: Number, required: true },
+        image: { type: String },
       },
     ],
     totalBill: { type: Number, required: true },
+    notes: { type: String },
+    fullName: { type: String },
+    phone: { type: String },
+    deliveryAddress: { type: String },
   },
   {
     timestamps: true,
   },
 );
 
-const Carts = mongoose.model('Carts', paymentSchema);
-module.exports = Carts;
+const Orders = mongoose.model('Orders', orderSchema);
+module.exports = Orders;

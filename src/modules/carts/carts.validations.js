@@ -31,10 +31,8 @@ const updateCartSchema = Joi.object({
         }),
       amount: Joi.number()
         .required()
-        .min(0)
         .messages({
           [ValidationTypeEnum.Required]: 'Số lượng không được để trống',
-          [ValidationTypeEnum.NumberMin]: 'Số lượng tối thiểu là 1',
         }),
       image: Joi.string(),
     }),
