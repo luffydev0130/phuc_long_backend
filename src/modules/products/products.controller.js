@@ -78,4 +78,16 @@ module.exports = {
       responseData: createDefaultInfoForProduct(product._doc),
     });
   }),
+
+  handleUpdateProduct: catchAsyncFn(async (req, res, next) => {
+    return res.status(200).json({
+      status: 'Updated',
+      statusCode: 200,
+      responseData: {},
+    });
+  }),
+
+  handleDeleteProduct: catchAsyncFn(async (req, res, next) => {
+    return res.status(204).send();
+  }),
 };

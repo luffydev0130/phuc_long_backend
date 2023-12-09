@@ -3,11 +3,20 @@ const {
   validateRequestMiddleware,
   parseJsonStr2ObjMiddleware,
 } = require('../../shared/middleware');
-const { uploadFilesUtils } = require('../../shared/utils');
 const ctrl = require('./products.controller');
-const { createProductSchema, getAllProductsSchema } = require('./products.validation');
+const { uploadFilesUtils } = require('../../shared/utils');
+const {
+  createProductSchema,
+  getAllProductsSchema,
+  productIdSchema,
+} = require('./products.validation');
 
-router.get('/:productId', ctrl.getProductById);
+router
+  .route('/:productId')
+  .all(validateRequestMiddleware('params', productIdSchema))
+  .get(ctrl.getProductById)
+  .patch(uploadFilesUtils.array('images', 5), ctrl.handleUpdateProduct)
+  .delete(ctrl.handleDeleteProduct);
 
 router
   .route('/')
