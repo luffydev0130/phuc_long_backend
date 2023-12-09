@@ -6,4 +6,5 @@ module.exports = {
   Only: 'any.only',
   MaxLength: 'string.max',
   NumberMin: 'number.min',
+  DateFormat: 'date.format',
 };

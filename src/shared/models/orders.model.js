@@ -6,18 +6,22 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
+      enum: ['thanh toán khi nhận hàng', 'thẻ tín dụng', 'thanh toán tại của hàng'],
     },
     paymentStatus: {
       type: String,
       required: true,
+      enum: ['chưa thanh toán', 'đã thanh toán', 'đã hoàn tiền'],
     },
     deliveryType: {
       type: String,
       required: true,
+      enum: ['nhận tại cửa hàng', 'giao hàng'],
     },
     deliveryStatus: {
       type: String,
       required: true,
+      enum: ['đang giao hàng', 'đã giao hàng', 'giao hàng thất bại'],
     },
     orderStatus: {
       type: String,

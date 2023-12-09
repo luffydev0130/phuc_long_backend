@@ -25,6 +25,7 @@ app.use('/api/users', require('./src/modules/users'));
 app.use('/api/orders', require('./src/modules/orders'));
 app.use('/api/markers', require('./src/modules/markers'));
 app.use('/api/products', require('./src/modules/products'));
+app.use('/api/statistics', require('./src/modules/statistics'));
 app.use('/api/product-types', require('./src/modules/product-types'));
 
 app.use('*', (req, res) => {
