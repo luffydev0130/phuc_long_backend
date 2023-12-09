@@ -1,10 +1,7 @@
-const path = require('path');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { UsersService, OrdersService, CartsService } = require('../../shared/services');
 const { catchAsyncFn, httpResponseErrorUtils, sendMailUtils } = require('../../shared/utils');
 const { createPlaceOrderSuccessfullyTemplate } = require('./orders.utils');
-
-const SUBJECT = ' LaKong - Coffee & Teas - Đặt Hàng Thành Công';
 
 module.exports = {
   handleSetUpPaymentIntent: catchAsyncFn(async (req, res, next) => {
@@ -99,6 +96,55 @@ module.exports = {
       status: 'OK',
       statusCode: 200,
       responseData: orders,
+    });
+  }),
+
+  handleUpdateOrder: catchAsyncFn(async (req, res, next) => {
+    const order = await OrdersService.getOrderByOrderId(req.params.orderId);
+
+    if (!order) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy đơn hàng với mã: ${req.params.orderId}`,
+      );
+    }
+
+    const fields = Object.keys(req.body);
+    if (!fields.length) {
+      throw httpResponseErrorUtils.createBadRequest(
+        'Vui lòng cung cấp thông tin bạn muốn cập nhật cho đơn hàng',
+      );
+    }
+
+    const changes = {};
+    for (const field of fields) {
+      switch (field) {
+        case 'paymentStatus': {
+          changes.paymentStatus = req.body.paymentStatus;
+          break;
+        }
+        case 'deliveryStatus': {
+          changes.deliveryStatus = req.body.deliveryStatus;
+          break;
+        }
+        case 'orderStatus': {
+          changes.orderStatus = req.body.orderStatus;
+          break;
+        }
+        case 'notes': {
+          changes.notes = req.body.notes;
+          break;
+        }
+      }
+    }
+
+    const updatedOrder = await OrdersService.updateOrder(req.params.orderId, {
+      ...changes,
+      createdAt: new Date(),
+    });
+    return res.status(200).json({
+      status: 'Update',
+      statusCode: 200,
+      responseData: updatedOrder,
     });
   }),
 };

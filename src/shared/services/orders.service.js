@@ -20,4 +20,12 @@ module.exports = {
       .select({ __v: 0, updatedAt: 0 })
       .sort([['createdAt', 'desc']]);
   },
+
+  getOrderByOrderId: (orderId) => {
+    return Orders.findById(orderId);
+  },
+
+  updateOrder: (orderId, changes) => {
+    return Orders.findByIdAndUpdate(orderId, changes, { new: true });
+  },
 };
