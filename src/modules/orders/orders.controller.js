@@ -1,3 +1,4 @@
+const moment = require('moment');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { UsersService, OrdersService, CartsService } = require('../../shared/services');
 const { catchAsyncFn, httpResponseErrorUtils, sendMailUtils } = require('../../shared/utils');
@@ -40,11 +41,20 @@ module.exports = {
   }),
 
   handleGetOrders: catchAsyncFn(async (req, res, next) => {
+    const filterObj = Object.keys(req.query).reduce((results, field) => {
+      const val = req.query[field];
+      if (val) {
+        results[field] = val;
+      }
+      return results;
+    }, {});
+
     const queries = {};
-    for (const field in req.query) {
+    for (const field in filterObj) {
       switch (field) {
         case 'search':
-          queries[field] = req.query[field];
+          const regex = new RegExp(req.query[field], 'i');
+          queries['$or'] = [{ fullName: regex }, { phone: regex }];
           break;
         case 'fullName':
           queries[field] = { $regex: new RegExp(req.query[field], 'i') };
@@ -67,6 +77,23 @@ module.exports = {
         case 'orderStatus':
           queries[field] = req.query[field];
           break;
+        case 'startDate': {
+          const date = moment(req.query.startDate).utc().startOf('day').toDate();
+          if (queries.createdAt) {
+            queries.createdAt.$gte = date;
+          } else {
+            queries.createdAt = { $gte: date };
+          }
+          break;
+        }
+        case 'endDate': {
+          const date = moment(req.query.endDate).utc().endOf('day').toDate();
+          if (queries.createdAt) {
+            queries.createdAt.$lte = date;
+          }
+          queries.createdAt = { $lte: date };
+          break;
+        }
         default:
           throw httpResponseErrorUtils.createBadRequest(
             `Không hỗ trợ tìm kiếm đơn hàng theo trường: ${field}`,

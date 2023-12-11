@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       required: true,
-      enum: ['chưa thanh toán', 'đã thanh toán', 'huỷ đơn hàng', 'đang xử lý'],
+      enum: ['thành công', 'đã huỷ', 'đang xử lý'],
       default: 'đang xử lý',
     },
     products: [

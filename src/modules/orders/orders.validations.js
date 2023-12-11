@@ -46,16 +46,11 @@ const updateOrderSchema = Joi.object({
       'string.base': 'Trạng thái vận chuyển phải là một chuỗi',
       'any.only': 'Trạng thái vận chuyển phải là một trong những giá trị sau: {{#valids}}',
     }),
-  orderStatus: Joi.string()
-    .valid('chưa thanh toán', 'đã thanh toán', 'huỷ đơn hàng', 'đang xử lý')
-    .optional()
-    .messages({
-      'string.base': 'Trạng thái đơn hàng phải là một chuỗi',
-      'any.only': 'Trạng thái đơn hàng phải là một trong những giá trị sau: {{#valids}}',
-    }),
-  notes: Joi.string().optional().messages({
-    'string.base': 'Ghi chú phải là một chuỗi',
+  orderStatus: Joi.string().valid('thành công', 'đã huỷ', 'đang xử lý').optional().messages({
+    'string.base': 'Trạng thái đơn hàng phải là một chuỗi',
+    'any.only': 'Trạng thái đơn hàng phải là một trong những giá trị sau: {{#valids}}',
   }),
+  notes: Joi.string().allow(''),
 });
 
 module.exports = { totalBillSchema, userIdSchema, updateOrderSchema, orderIdSchema };
