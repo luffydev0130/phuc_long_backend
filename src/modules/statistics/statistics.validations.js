@@ -22,7 +22,7 @@ const statisticSchema = Joi.object({
       [ValidationTypeEnum.Only]: 'Thống kê theo phải là một trong "ngày", "tháng", hoặc "năm".',
     }),
   orderStatus: Joi.string()
-    .valid('chưa thanh toán', 'đã thanh toán', 'huỷ đơn hàng', 'đang xử lý')
+    .valid('thành công', 'đã huỷ', 'đang xử lý')
     .optional()
     .messages({
       [ValidationTypeEnum.Only]: 'Trạng thái đơn hàng không hợp lệ',

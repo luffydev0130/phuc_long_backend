@@ -88,6 +88,13 @@ module.exports = {
   }),
 
   handleDeleteProduct: catchAsyncFn(async (req, res, next) => {
+    const product = await ProductsService.getProductById(req.params.productId);
+    if (!product) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy sản phẩm nào có id: ${req.params.productId}`,
+      );
+    }
+    await ProductsService.deleteProduct(req.params.productId);
     return res.status(204).send();
   }),
 };

@@ -9,13 +9,13 @@ module.exports = {
     const filter = {};
     if (startDate && endDate) {
       filter.createdAt = {
-        $gte: moment(req.query.startDate).startOf('day').toDate(),
-        $lte: moment(req.query.endDate).endOf('day').toDate(),
+        $gte: moment(req.query.startDate).utc().startOf('day').toDate(),
+        $lte: moment(req.query.endDate).utc().endOf('day').toDate(),
       };
     } else if (startDate) {
-      filter.createdAt = { $gte: moment(req.query.startDate).startOf('day').toDate() };
+      filter.createdAt = { $gte: moment(req.query.startDate).utc().startOf('day').toDate() };
     } else if (endDate) {
-      filter.createdAt = { $lte: moment(req.query.endDate).endOf('day').toDate() };
+      filter.createdAt = { $lte: moment(req.query.endDate).utc().endOf('day').toDate() };
     }
     if (orderStatus) {
       filter.orderStatus = orderStatus;
