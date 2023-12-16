@@ -15,7 +15,11 @@ router
   .route('/:productId')
   .all(validateRequestMiddleware('params', productIdSchema))
   .get(ctrl.getProductById)
-  .patch(uploadFilesUtils.array('images', 5), ctrl.handleUpdateProduct)
+  .patch(
+    uploadFilesUtils.fields([{ name: 'images', maxCount: 5 }]),
+    parseJsonStr2ObjMiddleware(['prices', 'oldImages']),
+    ctrl.handleUpdateProduct,
+  )
   .delete(ctrl.handleDeleteProduct);
 
 router

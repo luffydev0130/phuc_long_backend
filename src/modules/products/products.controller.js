@@ -80,10 +80,32 @@ module.exports = {
   }),
 
   handleUpdateProduct: catchAsyncFn(async (req, res, next) => {
+    const product = await ProductsService.getProductById(req.params.productId);
+    if (!product) {
+      throw httpResponseErrorUtils.createNotFound(
+        `Không tìm thấy sản phẩm có ID: ${req.params.productId}`,
+      );
+    }
+    const sameNameProduct = await ProductsService.getProductByName(req.body.name);
+    if (sameNameProduct && sameNameProduct._id.toString() !== req.params.productId) {
+      throw httpResponseErrorUtils.createBadRequest('Tên sản phẩm đã tồn tại');
+    }
+    const { oldImages, ...rest } = req.body;
+    const changes = {
+      ...rest,
+      images: [
+        ...oldImages,
+        ...(req.files.images
+          ? req.files.images.map((file) => `${process.env.HOST_NAME}/uploads/${file.filename}`)
+          : []),
+      ],
+    };
+
+    const updatedProduct = await ProductsService.updateProduct(req.params.productId, changes);
     return res.status(200).json({
       status: 'Updated',
       statusCode: 200,
-      responseData: {},
+      responseData: updatedProduct,
     });
   }),
 

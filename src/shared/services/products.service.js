@@ -46,6 +46,18 @@ module.exports = {
   },
 
   /**
+   * Get product by name
+   * @param {string} name
+   * @returns {Promise}
+   */
+  getProductByName: (name) => {
+    return Products.findOne({ name: { $regex: new RegExp('^' + name + '$', 'i') } })
+      .populate({ path: 'productType', select: 'name' })
+      .populate({ path: 'markers', select: 'name' })
+      .select({ __v: 0, updatedAt: 0 });
+  },
+
+  /**
    * Get number of products
    * @param {any} filterOptions
    * @returns {Promise}
