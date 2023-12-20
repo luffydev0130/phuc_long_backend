@@ -2,7 +2,7 @@ runtime: nodejs16  # Choose the Node.js runtime version you want to use
 
 env_variables:
   NODE_ENV: production  # Set your Node.js environment to production
-  MONGO_DB_URL: 'mongodb+srv://vidieu234:4MyrMph0dDMg4evL@phuclongbackend.405wets.mongodb.net/'
+  MONGO_DB_URL: 'mongodb+srv://vidieu234:4MyrMph0dDMg4evL@phuclongbackend.405wets.mongodb.net/phuclong'
   ACCESS_TOKEN_PRIVATE_KEY: 'accesstokenkey'
   REFRESH_TOKEN_PRIVATE_KEY: 'refreshtokenkey'
   ACCESS_TOKEN_EXPIRATION: "1h"  
@@ -16,4 +16,4 @@ env_variables:
 
 handlers:
 - url: /.*x
-  script: auto
+  script: npm start
